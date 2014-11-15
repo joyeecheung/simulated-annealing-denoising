@@ -1,0 +1,9 @@
+*.png
+!in.png
+!flipped.png
+binary_image.py
+materials
+*.pdf
+*.docx
+*.pyc
+*~
