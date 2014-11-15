@@ -17,10 +17,10 @@ def get_args(src, dest):
     parser.add_argument("-i", "--input", type=str, default=src)
     parser.add_argument("-o", "--output", type=str, default=dest)
     parser.add_argument("-d", "--density", type=float, default=0.1)
-    parser.add_argument("-b", "--beta", type=float, default=1.0)
-    parser.add_argument("-e", "--eta", type=float, default=2.1)
+    parser.add_argument("-b", "--beta", type=float, default=1e-4)
+    parser.add_argument("-e", "--eta", type=float, default=2.1e-4)
     parser.add_argument("-a", "--argh", type=float, default=0.0)
-    parser.add_argument("-k", "--kmax", type=int, default=2)
+    parser.add_argument("-k", "--kmax", type=int, default=10)
     args = parser.parse_args()
 
     # absolute path to the directory of this .py
