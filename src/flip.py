@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PIL import Image
-from random import randint
+from random import random
 from util import *
 
 import numpy as np
@@ -13,13 +13,12 @@ import argparse
 
 def flip(data, density):
     data_len, temp = len(data), np.array(data)
-    flip_count, flipped = int(density * data_len), set()
-    for i in xrange(flip_count):
-        p = randint(0, data_len - 1)
-        while p in flipped:
-            p = randint(0, data_len - 1)
-        temp[p] *= -1
-        flipped.add(p)
+    flipped = set()
+    for i in xrange(data_len):
+        p = random()
+        if p < density:
+            temp[i] *= -1
+            flipped.add(i)
     return temp, flipped
 
 
