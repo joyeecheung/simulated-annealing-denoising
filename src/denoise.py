@@ -92,7 +92,7 @@ def simulated_annealing(y, kmax, E, delta_E, temp_dir):
 
         result = sign(x, {-1: 0, 1: 255})
         temp_file = os.path.join(temp_dir, 'temp-%d.png' % (k))
-        Image.fromarray(result).convert('1').save(temp_file)
+        Image.fromarray(result).convert('1', dither=Image.NONE).save(temp_file)
         print "[Saved]", temp_file
 
     return x, energy_record
@@ -106,7 +106,8 @@ def denoise_image(image, args):
     result, energy_record = simulated_annealing(
         y, args.kmax, E, delta_E, temp_dir)
     result = sign(result, {-1: 0, 1: 255})
-    return Image.fromarray(result).convert('1'), energy_record
+    output_image = Image.fromarray(result).convert('1', dither=Image.NONE)
+    return output_image, energy_record
 
 
 def main():

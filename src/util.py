@@ -12,7 +12,7 @@ def sign(data, translate):
     return np.vectorize(lambda x: translate[x])(temp)
 
 
-def get_args(src, dest):
+def get_args(src="in.png", dest="flipped.png"):
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input", type=str, default=src)
     parser.add_argument("-o", "--output", type=str, default=dest)
@@ -20,7 +20,7 @@ def get_args(src, dest):
     parser.add_argument("-b", "--beta", type=float, default=1e-4)
     parser.add_argument("-e", "--eta", type=float, default=2.1e-4)
     parser.add_argument("-a", "--argh", type=float, default=0.0)
-    parser.add_argument("-k", "--kmax", type=int, default=10)
+    parser.add_argument("-k", "--kmax", type=int, default=20)
     args = parser.parse_args()
 
     # absolute path to the directory of this .py
