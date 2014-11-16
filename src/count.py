@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Count the number of removed noise and different pixels."""
 
 from PIL import Image
 import numpy as np
@@ -14,7 +15,8 @@ def main():
     x = np.array(original.getdata())
     y = np.array(best.getdata())
     remain = np.count_nonzero(x - y) / float(len(x))
-    print "Removed %.2f%%, %.2f%% different" % ((1 - remain)*100, remain*100)
+    print "Removed %.2f%%, %.2f%% different" % ((1 - remain) * 100,
+                                                remain * 100)
 
 if __name__ == "__main__":
     main()

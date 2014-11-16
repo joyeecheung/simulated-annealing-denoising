@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Convert an image to binary image."""
 
 from PIL import Image
 import numpy as np
