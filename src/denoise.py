@@ -37,7 +37,7 @@ def E_generator(beta, eta, h):
         xsum = np.sum(x)
         return h * xsum - beta * xx - eta * xy
 
-    def isValid(i, j, shape):
+    def is_valid(i, j, shape):
         """Check if coordinate i, j is valid in shape."""
         return i >= 0 and j >= 0 and i < shape[0] and j < shape[1]
 
@@ -53,7 +53,7 @@ def E_generator(beta, eta, h):
         E2 = E2 + (eta * y[i, j] * oldval) - (eta * y[i, j] * newval)
         adjacent = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         neighbors = [x[i + di, j + dj] for di, dj in adjacent
-                     if isValid(i + di, j + dj, x.shape)]
+                     if is_valid(i + di, j + dj, x.shape)]
         E2 = E2 + beta * sum(a * oldval for a in neighbors)
         E2 = E2 - beta * sum(a * newval for a in neighbors)
         return oldval, newval, E1, E2
@@ -172,7 +172,7 @@ def ICM(y, kmax, E, localized_E, temp_dir):
 def denoise_image(image, args, method='SA'):
     """Denoise a binary image.
 
-    Usage: denoised_image, energy_record = denoise_image(image, args)
+    Usage: denoised_image, energy_record = denoise_image(image, args, method)
     """
     data = sign(image.getdata(), {0: -1, 255: 1})  # convert to {-1, 1}
     E, localized_E = E_generator(args.beta, args.eta, args.argh)
@@ -201,7 +201,7 @@ def main():
     plt.xlabel('Time(s)')
     plt.ylabel('Energy')
     output_dir = os.path.dirname(os.path.realpath(args.output))
-    plt.savefig(os.path.join(output_dir, args.method + 'sa-energy-time.png'))
+    plt.savefig(os.path.join(output_dir, args.method + '-energy-time.png'))
 
 if __name__ == "__main__":
     main()
