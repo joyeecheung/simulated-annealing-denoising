@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage{fullpage}
 %-----------------Hyperlink Packages--------------------
 \usepackage{hyperref}
 \hypersetup{
@@ -150,7 +151,31 @@ $$
 
 \section{Experiment Result}
 
-
+\begin{figure}[H]
+	\begin{minipage}[b]{0.48\linewidth}
+		\centering
+		\includegraphics[width=180pt]{../img/in.png}
+		\caption{Original image}
+	\end{minipage}
+	\begin{minipage}[b]{0.48\linewidth}
+		\centering
+		\includegraphics[width=180pt]{../img/flipped.png}
+		\caption{Noisy image with 10\% flipped pixels}
+	\end{minipage}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\begin{minipage}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=180pt]{../img/best.png}
+		\caption{Denoised with simulated annealing}
+	\end{minipage}
+	\begin{minipage}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=180pt]{../img/icm.png}
+		\caption{Denoised with ICM}
+	\end{minipage}
+\end{figure}
 
 \section{Discussion}
 

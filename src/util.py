@@ -30,6 +30,7 @@ def get_args(src="in.png", dest="flipped.png"):
     parser.add_argument("-e", "--eta", type=float, default=2.1e-4)
     parser.add_argument("-a", "--argh", type=float, default=0.0)
     parser.add_argument("-k", "--kmax", type=int, default=30)
+    parser.add_argument("-m", "--method", type=str, default='SA')
     args = parser.parse_args()
 
     # absolute path to the directory of this .py
@@ -37,5 +38,4 @@ def get_args(src="in.png", dest="flipped.png"):
     parent_dir, _ = os.path.split(file_dir)
     args.input = os.path.join(parent_dir, 'img', args.input)
     args.output = os.path.join(parent_dir, 'img', args.output)
-
     return args
