@@ -49,7 +49,7 @@ def E_generator(beta, eta, h):
         oldval = x[i, j]
         newval = oldval * -1  # flip
         # local computations
-        E2 = E1 - (h * oldval ** 2) + (h * newval ** 2)
+        E2 = E1 - (h * oldval) + (h * newval)
         E2 = E2 + (eta * y[i, j] * oldval) - (eta * y[i, j] * newval)
         adjacent = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         neighbors = [x[i + di, j + dj] for di, dj in adjacent
