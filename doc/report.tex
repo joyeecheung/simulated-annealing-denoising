@@ -1,4 +1,5 @@
 \documentclass{article}
+%\usepackage[a4paper,margin=2cm,footskip=.5cm]{geometry}
 \usepackage{fullpage}
 %-----------------Hyperlink Packages--------------------
 \usepackage{hyperref}
@@ -42,7 +43,6 @@ Binary Image Denoising
 \date{\today}
 \maketitle
 
-\tableofcontents
 \section{Team Members}
 
 \begin{table}[H]
@@ -64,11 +64,13 @@ Let the observed noisy image be described by an array of binary pixel values $y_
 
 \section{Modeling}
 \paragraph{}
-Because the noise level is small, we know that there will be a strong correlation between $x_i$ and $y_i$. We also know that neighboring pixels $x_i$ and $x_j$ in an image are strongly correlated. This prior knowledge can be captured using the Markov random field model. This graph has two types of cliques, each of which contains two variables. The cliques of the form $\{x_i, y_i\}$ have an associated energy function that expresses the correlation between these variables. We choose a very simple energy function for these cliques of the form $-\eta x_i y_i$ where $\eta$ is a positive constant. This has the desired effect of giving a lower energy (thus encouraging a higher probability) when $x_i$ and $y_i$ have the same sign and a higher energy when they have the opposite sign.
+Knowing that the density of noise is small, there should be a strong correlation between $x_i$ and $y_i$. Another prior knowledge is that neighboring pixels $x_i$ and $x_j$ in an image are strongly correlated. This knowledge implies that $\{\mathbf{x}, \mathbf{y}\}$ has the Markov property and can be described with a undirected graph \cite{bishop2006pattern}, so we can use the Markov random field to model this problem.
 
-The remaining cliques comprise pairs of variables $\{x_i, x_j\}$ where $i$ and $j$ are indices of neighboring pixels. Again, we want the energy to be lower when the pixels have the same sign than when they have the opposite sign, and so we choose an energy given by $-\beta x_i x_j$ where $\beta$ is a positive constant. 
+There are two types of cliques in this graph. The first one $\{x_i, y_i\}$ has an associated energy function that expresses the correlation between these variables. Here we can use a simple energy function for them: $-\eta x_i y_i$, where $\eta$ is a positive constant. This will produce a lower energy (thus encouraging a higher probability) when $x_i$ and $y_i$ have the same sign and a higher energy when they have the opposite sign.
 
-Because a potential function is an arbitrary, non-negative function over a maximal clique, we can multiply it by any nonnegative functions of subsets of the clique, or equivalently we can add the corresponding energies. In this example, this allows us to add an extra term $hx_i$ for each pixel $i$ in the noise-free image. Such a term has the effect of biasing the model towards pixel values that have one particular sign in preference to the other. The complete energy function for the model then takes the form:
+The other type of cliques is $\{x_i, x_j\}$ where $i$ and $j$ are indices of neighboring pixels. Again, we want the energy to be lower when the pixels have the same sign than when they have the opposite sign, and so we choose an energy given by $-\beta x_i x_j$ where $\beta$ is another positive constant. 
+
+Because a potential function is an arbitrary, non-negative function over a maximal clique, we can multiply it by any nonnegative functions of subsets of the clique, or equivalently we can add the corresponding energies. In this model, this allows us to add an extra term $hx_i$ for each pixel $i$ in the noise-free image. This would bias the model towards pixel values that have one particular sign in preference to the other. Hence the complete energy function for this model is:
 
 $$
 E(\mathbf{x}, \mathbf{y}) = h \sum_{i}x_i - \beta\sum_{\{i, j\}}x_ix_j - \eta\sum_{i}x_iy_i
@@ -80,7 +82,7 @@ $$
 p(\mathbf{x}, \mathbf{y}) = \frac{1}{Z}\exp\{-E(\mathbf{x}, \mathbf{y})\}
 $$
 
-Our goal is then defined as finding an $\mathbf{x}$ such that:
+where $Z$ is the partition function \cite{bishop2006pattern}. Our goal is then defined as finding an $\mathbf{x}$ such that:
 
 $$
 \mathbf{x} = {\operatorname{arg\,min}} E(\mathbf{x}, \mathbf{y})
@@ -88,19 +90,50 @@ $$
 
 \section{Algorithm and Implementation}
 
+\subsection{ICM}
 \paragraph{}
 We now fix the elements of $y$ to the observed values given by the pixels of the noisy image, which implicitly defines a conditional distribution $p(x|y)$ over noise-free images. This is an example of the \textit{Ising model}, which has been widely studied in statistical physics. 
 
-For the purposes of image restoration, we wish to find an image $x$ having a high probability (ideally the maximum probability). Since $E$ can be viewed as a function of $M \times N$ variables, with each variable representing a pixel value, we can use the method of gradient descent to search for the minimizer of $E$. More precisely, for each pixel $x_{i,j}$ we search by evaluating two possible states for $x_{i,j} = 1$ and $x_{i,j} = −1$, keeping all other pixel value fixed. The search will be repeated until some stopping criterion is satisfied.
+For this problem, we wish to find an image $x$ having a high probability (ideally the maximum probability), which is equivalent to making $E$ as small as possible. Since $E$ can be viewed as a function of $M \times N$ variables, with each variable representing a pixel value, we can use the method of gradient descent to search for the minimizer of $E$. More precisely, for each pixel $x_{i}$ we search by evaluating two possible states for $x_{i} = 1$ and $x_{i} = −1$, keeping all other pixel value fixed, and choose between the two states. The search will be repeated until some stopping criterion is satisfied.
 
-It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies that there will be multiple local minima for $E$ depending on the initial state. To search for the global optimun, we need a global optimization strategy. In this project, we use \textit{simulated annealing}, which can be easily integrated with method of gradient descent.
+A straightforward scheme would be to choose whichever state that leads to a lower energy at each step of the search. This greedy approach, described in Algorithm ~\ref{alg:icm}, is known as the \text{iterated conditional modes}, or ICM. Despite being a simple and effective strategy, ICM is prone to local optima. Therefore, we need another approach for a better result.
 
-The complete algorithm is shown in Algorithm ~\ref{alg:denoise}.
+\begin{algorithm}
+\centering
+\caption{Binary image denoising with ICM}
+\label{alg:icm}
+  \begin{algorithmic}[1]
+    \Function{Deniose}{$\mathbf{y}$, $\beta$, $\eta$, $h$}
+        \Comment{$\mathbf{y}$ is the noisy image}
+        \State Initialize $\mathbf{x}$ with $\mathbf{x} = \mathbf{y}$
+        \State Initialize $Ebest$ with $Ebest = E(\mathbf{x}, \mathbf{y})$
+	    \For{$k = 1 \to k_{max}$}
+	    	\For{each pixel $x_{i, j}$}
+	    		\State $E_1 = E(\mathbf{x}, \mathbf{y})$
+	    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel}
+	    		\State $E_2 = E(\mathbf{x}, \mathbf{y})$
+	    		\If{$E1 > E2$}
+		    		\If{$E_2 < E_{best}$}
+		    			\State Record the best energy $Ebest = E_2$
+		    		\EndIf
+		    	\Else
+		    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel back}
+		    	\EndIf
+	    	\EndFor
+	    \EndFor
+      \Return $x$
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+\subsection{Simulated Annealing}
+\paragraph{}
+It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies that there will be multiple local minima for $E$ depending on the initial state. To search for the global optimun, we need a global optimization strategy. In this project, we use \textit{simulated annealing}, which can be easily integrated with method of gradient descent. By adding randomness to our searching strategy, we increase the probability of reaching a global optimum (and simulated annealing indeed produces one for this model, as proven in \cite{geman1984stochastic}).The complete algorithm is shown in Algorithm ~\ref{alg:sa}.
 
 \begin{algorithm}
 \centering
 \caption{Binary image denoising with simulated annealing}
-\label{alg:denoise}
+\label{alg:sa}
   \begin{algorithmic}[1]
     \Function{Deniose}{$\mathbf{y}$, $\beta$, $\eta$, $h$}
         \Comment{$\mathbf{y}$ is the noisy image}
@@ -111,7 +144,7 @@ The complete algorithm is shown in Algorithm ~\ref{alg:denoise}.
 	    	\For{each pixel $x_{i, j}$}
 	    		\State $E_1 = E(\mathbf{x}, \mathbf{y})$
 	    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel}
-	    		\State $E_2 = E(\mathbf{x}, \mathbf{y}$
+	    		\State $E_2 = E(\mathbf{x}, \mathbf{y})$
 	    		\State Compute the transition probability $p = prob(E_1, E_2, t)$
 	    		\If{$p > q$ where $q$ is a random number in $[0, 1]$}
 		    		\If{$E_2 < E_{best}$}
@@ -134,10 +167,8 @@ The temperature function is a decreasing function of iterations. It must converg
 $$
 \text{temperature}(k, k_{max}) = \frac{1}{500}(\frac{1}{k} - \frac{1}{k_{max}})
 $$
-
 \item Remark 2.\hfill \\
 The probability transition function used for this implementation is
-
 $$
 prob(E_1, E_2, t) =  \left\{
      \begin{array}{lr}
@@ -146,10 +177,17 @@ prob(E_1, E_2, t) =  \left\{
      \end{array}
    \right.
 $$
-
 \end{description}
 
+\subsection{Local Optimization}
+
+\paragraph{}
+With either ICM or simulated annealing, we only need to alter the $E$ for values relavent to the flipped pixel at each step. Let $x_i$ be the pixel to be flipped, we only need to update $E$ with the new $hx_i + \eta x_i y_i + \sum \beta x_i x_j$ where $x_j$ is the neighboring pixels of $x_i$. Therefore we can localize the calculation of $E1$ and $E2$, making the implementation much faster.
+
 \section{Experiment Result}
+
+\paragraph{}
+For this project we choose $\beta = 1 \times 10^{-4}, \eta = 2.1 \times 10^{-4}, h = 0, k_{max} = 30$. The experiment result is as follows.
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.48\linewidth}
@@ -167,16 +205,17 @@ $$
 	\centering
 	\begin{minipage}[b]{0.45\linewidth}
 		\centering
-		\includegraphics[width=180pt]{../img/best.png}
-		\caption{Denoised with simulated annealing}
+		\includegraphics[width=180pt]{../img/icm.png}
+		\caption{Denoised with ICM}
 	\end{minipage}
 	\begin{minipage}[b]{0.45\linewidth}
 		\centering
-		\includegraphics[width=180pt]{../img/icm.png}
-		\caption{Denoised with ICM}
+		\includegraphics[width=180pt]{../img/best.png}
+		\caption{Denoised with simulated annealing}
 	\end{minipage}
 \end{figure}
 
 \section{Discussion}
 
+\bibliography{denoise}
 \end{document}
