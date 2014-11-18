@@ -1,5 +1,5 @@
 \documentclass{article}
-%\usepackage[a4paper,margin=2cm,footskip=.5cm]{geometry}
+%\usepackage[a4paper,margin=2.2cm,footskip=.5cm]{geometry}
 \usepackage{fullpage}
 %-----------------Hyperlink Packages--------------------
 \usepackage{hyperref}
@@ -50,11 +50,12 @@ Binary Image Denoising
 \begin{tabular}{l l l}
 Name & Student ID  & Job\\
 \hline
-Fan Ziyao & 12330081 & \\
-Chen Yingcong & 12330049 & \\
-Chen Xiongtao & 12330040 & \\
-Huang Long & 12330132 &  \\
-Zhang Qiuyi & 12330402 & 
+Fan Ziyao & 12330081 & Team leader, implementation\\
+Chen Yingcong & 12330049 & Implementation \\
+Chen Xiongtao & 12330040 & Modeling, implementation \\
+Huang Long & 12330132 & Implementation \\
+Zhang Qiuyi & 12330402 & Implementation, documentation
+
 \end{tabular}
 \end{table}
 
@@ -82,7 +83,7 @@ $$
 p(\mathbf{x}, \mathbf{y}) = \frac{1}{Z}\exp\{-E(\mathbf{x}, \mathbf{y})\}
 $$
 
-where $Z$ is the partition function \cite{bishop2006pattern}. Our goal is then defined as finding an $\mathbf{x}$ such that:
+where $Z$ is the \textit{partition function} \cite{bishop2006pattern}. Our goal is then defined as finding an $\mathbf{x}$ such that:
 
 $$
 \mathbf{x} = {\operatorname{arg\,min}} E(\mathbf{x}, \mathbf{y})
@@ -90,45 +91,45 @@ $$
 
 \section{Algorithm and Implementation}
 
-\subsection{ICM}
+\subsection{Iterated Conditional Modes}
 \paragraph{}
 We now fix the elements of $y$ to the observed values given by the pixels of the noisy image, which implicitly defines a conditional distribution $p(x|y)$ over noise-free images. This is an example of the \textit{Ising model}, which has been widely studied in statistical physics. 
 
 For this problem, we wish to find an image $x$ having a high probability (ideally the maximum probability), which is equivalent to making $E$ as small as possible. Since $E$ can be viewed as a function of $M \times N$ variables, with each variable representing a pixel value, we can use the method of gradient descent to search for the minimizer of $E$. More precisely, for each pixel $x_{i}$ we search by evaluating two possible states for $x_{i} = 1$ and $x_{i} = −1$, keeping all other pixel value fixed, and choose between the two states. The search will be repeated until some stopping criterion is satisfied.
 
-A straightforward scheme would be to choose whichever state that leads to a lower energy at each step of the search. This greedy approach, described in Algorithm ~\ref{alg:icm}, is known as the \text{iterated conditional modes}, or ICM. Despite being a simple and effective strategy, ICM is prone to local optima. Therefore, we need another approach for a better result.
+A straightforward scheme would be to choose whichever state that leads to a lower energy at each step of the search. This greedy approach, described in Algorithm ~\ref{alg:icm}, is known as the \textit{iterated conditional modes}, or ICM. Despite being a simple and effective strategy, ICM is prone to local optima. Therefore, we need another approach for a better result.
 
 \begin{algorithm}
 \centering
-\caption{Binary image denoising with ICM}
+\caption{Binary image denoising with iterated conditional modes}
 \label{alg:icm}
   \begin{algorithmic}[1]
     \Function{Deniose}{$\mathbf{y}$, $\beta$, $\eta$, $h$}
         \Comment{$\mathbf{y}$ is the noisy image}
         \State Initialize $\mathbf{x}$ with $\mathbf{x} = \mathbf{y}$
-        \State Initialize $Ebest$ with $Ebest = E(\mathbf{x}, \mathbf{y})$
+        \State Initialize $E_{best}$ with $E_{best} = E(\mathbf{x}, \mathbf{y})$
 	    \For{$k = 1 \to k_{max}$}
-	    	\For{each pixel $x_{i, j}$}
+	    	\For{each pixel $x_{i}$}
 	    		\State $E_1 = E(\mathbf{x}, \mathbf{y})$
-	    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel}
+	    		\State $x_{i} = - x_{i}$ \Comment{flip the pixel}
 	    		\State $E_2 = E(\mathbf{x}, \mathbf{y})$
 	    		\If{$E1 > E2$}
 		    		\If{$E_2 < E_{best}$}
-		    			\State Record the best energy $Ebest = E_2$
+		    			\State Record the best energy $E_{best} = E_2$
 		    		\EndIf
 		    	\Else
-		    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel back}
+		    		\State $x_{i} = - x_{i}$ \Comment{flip the pixel back}
 		    	\EndIf
 	    	\EndFor
 	    \EndFor
-      \Return $x$
+      \Return $\mathbf{x}$
     \EndFunction
   \end{algorithmic}
 \end{algorithm}
 
 \subsection{Simulated Annealing}
 \paragraph{}
-It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies that there will be multiple local minima for $E$ depending on the initial state. To search for the global optimun, we need a global optimization strategy. In this project, we use \textit{simulated annealing}, which can be easily integrated with method of gradient descent. By adding randomness to our searching strategy, we increase the probability of reaching a global optimum (and simulated annealing indeed produces one for this model, as proven in \cite{geman1984stochastic}).The complete algorithm is shown in Algorithm ~\ref{alg:sa}.
+It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies that there will be multiple local minima for $E$ depending on the initial state. To search for the global optimun, we need a global optimization strategy. In this project, we use \textit{simulated annealing}(SA), which can be easily integrated with method of gradient descent. By adding randomness to our searching strategy, we increase the probability of reaching a global optimum (and SA does approximate one in this model, as proven in \cite{geman1984stochastic}).The complete algorithm is described in Algorithm ~\ref{alg:sa}.
 
 \begin{algorithm}
 \centering
@@ -141,9 +142,9 @@ It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies t
         \State Initialize $Ebest$ with $Ebest = E(\mathbf{x}, \mathbf{y})$
 	    \For{$k = 1 \to k_{max}$}
 	    	\State Compute the temperature $t$ = temperature($k,k_{max}$)
-	    	\For{each pixel $x_{i, j}$}
+	    	\For{each pixel $x_{i}$}
 	    		\State $E_1 = E(\mathbf{x}, \mathbf{y})$
-	    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel}
+	    		\State $x_{i} = - x_{i}$ \Comment{flip the pixel}
 	    		\State $E_2 = E(\mathbf{x}, \mathbf{y})$
 	    		\State Compute the transition probability $p = prob(E_1, E_2, t)$
 	    		\If{$p > q$ where $q$ is a random number in $[0, 1]$}
@@ -151,11 +152,11 @@ It is easy to see that $E(x,y)$ is a non-convex function of $x$, which implies t
 		    			\State Record the best energy $Ebest = E_2$
 		    		\EndIf
 		    	\Else
-		    		\State $x_{i,j} = - x_{i,j}$ \Comment{flip the pixel back}
+		    		\State $x_{i} = - x_{i}$ \Comment{flip the pixel back}
 		    	\EndIf
 	    	\EndFor
 	    \EndFor
-      \Return $x$
+      \Return $\mathbf{x}$
     \EndFunction
   \end{algorithmic}
 \end{algorithm}
@@ -172,8 +173,8 @@ The probability transition function used for this implementation is
 $$
 prob(E_1, E_2, t) =  \left\{
      \begin{array}{lr}
-       1 & : E_1 > E_2 \\
-       \mathbf{e}^{\frac{E_1 - E2}{t}} & : E_1 \leq E_2
+       1, & E_1 > E_2 \\
+       \mathbf{e}^{\frac{E_1 - E2}{t}}, & E_1 \leq E_2
      \end{array}
    \right.
 $$
@@ -182,23 +183,27 @@ $$
 \subsection{Local Optimization}
 
 \paragraph{}
-With either ICM or simulated annealing, we only need to alter the $E$ for values relavent to the flipped pixel at each step. Let $x_i$ be the pixel to be flipped, we only need to update $E$ with the new $hx_i + \eta x_i y_i + \sum \beta x_i x_j$ where $x_j$ is the neighboring pixels of $x_i$. Therefore we can localize the calculation of $E1$ and $E2$, making the implementation much faster.
+With either ICM or SA, we only need to alter the $E$ for values relavent to the flipped pixel at each step. Let $x_i$ be the pixel to be flipped, we can just update $E$ with the new $hx_i + \eta x_i y_i + \sum \beta x_i x_j$ where $x_j$ are the neighboring pixels of $x_i$. Then we can localize the calculation of $E_1$ and $E_2$, making the implementation much faster.
 
 \section{Experiment Result}
 
 \paragraph{}
-For this project we choose $\beta = 1 \times 10^{-4}, \eta = 2.1 \times 10^{-4}, h = 0, k_{max} = 30$. The experiment result is as follows.
+We first take a binary image(for simplicity we choose a black-and-white one), then flip its pixels with 10\% probability to generate the noisy image. After that, we try to restore the original image by running both ICM and SA denoising, and compare their results. For the energy function, we choose $\beta = 1 \times 10^{-4}, \eta = 2.1 \times 10^{-4}, h = 0$. The maximum number of iteration $k_{max}$ is $30$ for both ICM and SA.
+
+The experiment results are shown in Figure ~\ref{fig:original} - \ref{fig:sa}.
 
 \begin{figure}[H]
 	\begin{minipage}[b]{0.48\linewidth}
 		\centering
 		\includegraphics[width=180pt]{../img/in.png}
 		\caption{Original image}
+		\label{fig:original}
 	\end{minipage}
 	\begin{minipage}[b]{0.48\linewidth}
 		\centering
 		\includegraphics[width=180pt]{../img/flipped.png}
-		\caption{Noisy image with 10\% flipped pixels}
+		\caption{Noisy image with 10\% pixels flipped}
+		\label{fig:noisy}
 	\end{minipage}
 \end{figure}
 \begin{figure}[H]
@@ -207,15 +212,34 @@ For this project we choose $\beta = 1 \times 10^{-4}, \eta = 2.1 \times 10^{-4},
 		\centering
 		\includegraphics[width=180pt]{../img/icm.png}
 		\caption{Denoised with ICM}
+		\label{fig:icm}
 	\end{minipage}
 	\begin{minipage}[b]{0.45\linewidth}
 		\centering
 		\includegraphics[width=180pt]{../img/best.png}
-		\caption{Denoised with simulated annealing}
+		\caption{Denoised with SA}
+		\label{fig:sa}
 	\end{minipage}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=300pt]{../img/ICM-energy-time.png}
+\caption{Time-Energy series of ICM}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=300pt]{../img/SA-energy-time.png}
+\caption{Time-Energy series of SA}
+\end{figure}
+To evaluate the denoised results, we count the non-zero elements in $\mathbf{x} - \mathbf{y}$. ICM produces an image with  96.21\% of the pixels agree with the original one, while SA yeilds 99.19\%.
+
 \section{Discussion}
+\paragraph{}
+Both ICM and SA restored most of the original image, though SA is visually much better than ICM, which is not surprising -- after all, SA approximates the global optimum while ICM tends to stuck in local optima.
+
+From a visual inspection of the images, it is apparent that SA successfully removed the majority of the outlying noises, especially those in the uniform areas. Since the neighborhood defined in $E$ is only 4-adjacent, SA can not capture the overall attributes of the image, such as the egdes. The randomness incorporated by SA also makes it uncertain about these noises. Therefore, in areas where the noises obscure the edges of the object, some pixels have been mistakenly flipped; In area with high density of noises, some of them have been clustered instead of being removed. Aside from these small artifacts, the result produced by SA is rather appealing.
 
 \bibliography{denoise}
 \end{document}
