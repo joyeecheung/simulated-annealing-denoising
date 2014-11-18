@@ -239,7 +239,7 @@ To evaluate the denoised results, we count the non-zero elements in $\mathbf{x} 
 \paragraph{}
 Both ICM and SA restored most of the original image, though SA is visually much better than ICM, which is not surprising -- after all, SA approximates the global optimum while ICM tends to stuck in local optima.
 
-From a visual inspection of the images, it is apparent that SA successfully removed the majority of the outlying noises, especially those in the uniform areas. Since the neighborhood defined in $E$ is only 4-adjacent, SA can not capture the overall attributes of the image, such as the egdes. The randomness incorporated by SA also makes it uncertain about these noises. Therefore, in areas where the noises obscure the edges of the object, some pixels have been mistakenly flipped; In area with high density of noises, some of them have been clustered instead of being removed. Aside from these small artifacts, the result produced by SA is rather appealing.
+From a visual inspection of the images, it is apparent that SA successfully removed the majority of the outlying noises, especially those in the uniform areas. Since the neighborhood defined in $E$ is only 4-adjacent, SA can not capture the overall attributes of the image, such as the egdes. The randomness incorporated by SA also makes it uncertain about these noises. Therefore, in areas where the noises obscure the edges of the object, some pixels have been mistakenly flipped; in area with high density of noises, some of them have been clustered instead of being removed. Aside from these small artifacts, the result produced by SA is rather appealing.
 
 \bibliography{denoise}
 \end{document}
