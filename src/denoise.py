@@ -134,6 +134,7 @@ def simulated_annealing(y, kmax, E, localized_E, temp_dir):
 
 
 def ICM(y, kmax, E, localized_E, temp_dir):
+    """Greedy version of simulated_annealing()."""
     x = np.array(y)
     Ebest = Ecur = E(x, y)  # initial energy
     initial_time = time.time()
