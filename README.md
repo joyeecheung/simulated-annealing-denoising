@@ -30,7 +30,7 @@ The source code can be run under windows or linux with python 2.7+ and the libra
 Note: python scripts should be run under the `src` directory. All images will be placed under the `img` directory.
 
 1. Place the original image called `in.png` under `img` directory.
-2. Enter the `src` directory, run `python binarize.py`. It will convert the `in.png` to a binary image and overwritten it.
+2. Enter the `src` directory, run `python binarize.py`. It will convert the `in.png` to a binary image and overwrite it.
 3. Run `python flip.py`, which will generate the flipped image named `flipped.png`.
 4. Run `python denoise.py` to denoise the flipped image using simulated annealing. The result will be named `best.png`. Temporary results (`temp-*.png`) and the time-energy plot (`SA-energy-time.png`) will be saved, too.
 5. Run `python denoise.py -m "ICM" -o "icm.png"` to denoise the flipped image using ICM. The result will be named `icm.png`. Temporary results (`icm-temp-*.png`) and the time-energy plot (`ICM-energy-time.png`) will be saved, too.
